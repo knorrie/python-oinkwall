@@ -1,0 +1,15 @@
+Source: oinkwall
+Section: net
+Priority: extra
+Maintainer: Hans van Kranenburg <hans.van.kranenburg@mendix.com>
+Build-Depends: debhelper (>= 8), python (>= 2.6.6-3~)
+Standards-Version: 3.9.4
+
+Package: python-oinkwall
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-dnspython
+Description: Python module for programmatically creating low level
+ iptables rule sets. Oinkwall aims at reducing friction of handling
+ IPv4 and IPv6 rule sets in parallel and handling the resolving of
+ IP addresses via DNS, including network subnet definitions, while
+ not restricting the freedom of the user.
