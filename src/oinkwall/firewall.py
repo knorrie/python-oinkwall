@@ -126,7 +126,7 @@ class IPTables:
         for p in ipv:
             self.override_policy[p][table][chain] = target
 
-    def get_iptables_restore_script(self, ipv):
+    def get_iptables_restore_script(self, ipv=ipv4):
         lines = []
         lines.append('# Firewall configuration written by oinkwall v%s' % __version__)
         for table in self.tables[ipv]:
@@ -162,6 +162,9 @@ class IPTables:
         lines.append('# vim:ft=iptables')
         lines.append('')
         return '\n'.join(lines)
+
+    def get_ip6tables_restore_script(self):
+        return self.get_iptables_restore_script(ipv6)
 
 
 class IPTablesRuleset:
