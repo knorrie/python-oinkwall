@@ -1,9 +1,27 @@
 python-oinkwall
 ===============
 
-Oinkwall is a python library that provides a higly programmable way to help you to generate low level Linux IPTables rule files and hosts.allow rules. It aims at handling the boring parts for you, while it completely leaves you with the possibility to use raw iptables commands as much as possible.
+Oinkwall is a python library that provides a highly programmable way to help you to generate low level Linux IPTables rule files and hosts.allow rules. It aims at handling the boring parts (resolving domain names, putting the IPv4 and IPv6 addresses in the right place) for you, while it completely leaves you with the freedom to use raw iptables commands as much as possible.
 
 Unlike most firewall tools, it does not try to impose using any higher level abstractions on you. It operates on the level that programs like iptables-save and iptables-restore work on. It simply helps you to easier organize your iptables rules.
+
+## A simple example
+
+This...
+
+    import oinkwall
+    fw = oinkwall.IPTables()
+    r = oinkwall.IPTablesRuleset('filter', 'INPUT')
+    r.add(s='example.com', r='-p tcp -m tcp --dport 25 -j ACCEPT')
+    fw.add(r)
+    print("IPv4:")
+    print(fw.get_iptables_restore_script())
+    print("IPv6:")
+    print(fw.get_ip6tables_restore_script())
+
+...will give you the basic idea of what's going on here. Just make this work on your computer.
+
+If you want to have a look at more examples instead of reading on, look inside the examples folder inside this repository.
 
 ## History
 
@@ -29,24 +47,6 @@ The oinkwall library contains a single python module, firewall.py (yes, I expect
 The idea is that you can create an IPTables and HostsAllow object, and then add IPTablesRuleset and HostsAllowRuleset to it. When you're done adding rules, call the get\_iptables\_restore\_script and get\_ip6tables\_restore\_script on the IPTables object to get output you can directly feed to iptables-restore and ip6tables-restore. HostsAllow has a get\_hosts\_allow\_content function, which returns the content of your hosts.allow file. It assumes you have ALL:ALL in hosts.deny.
 
 The firewall.py file isn't that big, and I hope the function definitions are quite self-explanatory, because they resemble the low level iptables syntax.
-
-## A simple example
-
-This...
-
-    import oinkwall
-    fw = oinkwall.IPTables()
-    r = oinkwall.IPTablesRuleset('filter', 'INPUT')
-    r.add(s='example.com', r='-p tcp -m tcp --dport 25 -j ACCEPT')
-    fw.add(r)
-    print("IPv4:")
-    print(fw.get_iptables_restore_script())
-    print("IPv6:")
-    print(fw.get_ip6tables_restore_script())
-
-...will give you the basic idea of what's going on here. Just make this work on your computer.
-
-If you want to have a look at more examples instead of reading on, look inside the examples folder inside this repository.
 
 ## Some moar tour...
 
