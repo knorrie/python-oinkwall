@@ -19,7 +19,9 @@ This...
     print("IPv6:")
     print(fw.get_ip6tables_restore_script())
 
-...will give you the basic idea of what's going on here. Just make this work on your computer.
+...will give you the basic idea of what's going on here. You don't have to worry about whether example.com has an IPv4 of IPv6 addres, or both, and what to do with them. It just happens!
+
+Now, just make this work on your computer also first, and then continue on.
 
 If you want to have a look at more examples instead of reading on, look inside the examples folder inside this repository.
 
