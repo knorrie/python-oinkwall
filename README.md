@@ -90,3 +90,7 @@ Let me demonstrate:
                 60  IN    TXT    "2001:db8:77:2::/120"
 
 If I would use s="\_net.example.knorrie.org" in a rule, oinkwall will lookup the TXT records and resolve it to 192.0.2.0/24, 2001:db8:1998::/120 and 2001:db8:42:99::/64 for you. The IPv4 range will end up in the IPv4 firewall, and the IPv6 ranges will end up in the IPv6 firewall.
+
+## Help!!
+
+It's quite probable you just arrived at this page, because you were desperately searching for a tool or programming library that just provides all the funtionality and flexibility that this library does provide you. But... After ending up at the bottom of this page, you think the documentation you just scanned does not really help you that much, because it's TL;DR or just missing the exact thing you needed. In that case, just help me improve it! Email me at hans@knorrie.org with your questions, or talk to me on IRC. I'm Knorrie on IRCnet, OFTC and Freenode.
