@@ -26,7 +26,7 @@ The strenghts of using this library should be:
 
 The oinkwall library contains a single python module, firewall.py (yes, I expect you to clone this repository and inspect the source code right now), which contains the classes IPTables, IPTablesRuleset, HostsAllow and HostsAllowRuleset.
 
-The idea is that you can create an IPTables and HostsAllow object, and then add IPTablesRuleset and HostsAllowRuleset to it. When you're done adding rules, call the get\_iptables\_restore\_script and get\_ip6tables\_restore\_script on the IPTables object to get output you can directly feed to iptables-restore and ip6tables-restore. HostsAllow has a get\_hosts\_allow\_content function, which returns the content of your hosts.allow file. Is assumes you have ALL:ALL in hosts.deny by the way.
+The idea is that you can create an IPTables and HostsAllow object, and then add IPTablesRuleset and HostsAllowRuleset to it. When you're done adding rules, call the get\_iptables\_restore\_script and get\_ip6tables\_restore\_script on the IPTables object to get output you can directly feed to iptables-restore and ip6tables-restore. HostsAllow has a get\_hosts\_allow\_content function, which returns the content of your hosts.allow file. It assumes you have ALL:ALL in hosts.deny.
 
 The firewall.py file isn't that big, and I hope the function definitions are quite self-explanatory, because they resemble the low level iptables syntax.
 
