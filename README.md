@@ -3,7 +3,7 @@ python-oinkwall
 
 Oinkwall is a python library that provides a highly programmable way to help you to generate low level Linux IPTables rule files and hosts.allow rules. It aims at handling the boring parts (resolving domain names, putting the IPv4 and IPv6 addresses in the right place) for you, while it completely leaves you with the freedom to use raw iptables commands as much as possible.
 
-Unlike most firewall tools, it does not try to impose using any higher level abstractions on you. It operates on the level that programs like iptables-save and iptables-restore work on. It simply helps you to easier organize your iptables rules, if you like writing them directly.
+Unlike most firewall tools, it does not try to impose using any higher level abstractions on you. It operates on the level that programs like iptables-save and iptables-restore work on. It simply helps you to easier organize your iptables rules, if you like writing them directly and adding them together programmatically.
 
 The library can be used to assemble a firewall for a single host or router, or for generating a lot of them, as building your own templating system or higher level tools 100% tailored to your own specific situation and your low level rule needs should be pretty easy.
 
@@ -50,6 +50,18 @@ The strenghts of using this library should be:
 The oinkwall library contains a single python module, firewall.py (yes, I expect you to clone this repository and inspect the source code right now), which contains the classes IPTables, IPTablesRuleset, HostsAllow and HostsAllowRuleset.
 
 The idea is that you can create an IPTables and HostsAllow object, and then add IPTablesRuleset and HostsAllowRuleset to it. When you're done adding rules, call the get\_iptables\_restore\_script and get\_ip6tables\_restore\_script on the IPTables object to get output you can directly feed to iptables-restore and ip6tables-restore. HostsAllow has a get\_hosts\_allow\_content function, which returns the content of your hosts.allow file. It assumes you have ALL:ALL in hosts.deny.
+
+    import oinkwall
+
+    fw = oinkwall.IPTables()
+    r = oinkwall.IPTablesRuleset('filter', 'INPUT')
+    r.add(s='example.com', r='-p tcp -m tcp --dport 25 -j ACCEPT')
+    fw.add(r)
+
+    ha = oinkwall.HostsAllow()
+    h = oinkwall.HostsAllowRuleset()
+    h.add(comment="I'm a comment!", daemon='sshd', s='localhost')
+    ha.add(h)
 
 The firewall.py file isn't that big, and I hope the function definitions are quite self-explanatory, because they resemble the low level iptables syntax.
 
