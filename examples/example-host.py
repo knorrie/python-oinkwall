@@ -25,6 +25,11 @@ r.add(comment="This is a comment",
 r.add(r='-p tcp -m tcp --dport 80 -j ACCEPT')
 fw.add(r)
 
+r = oinkwall.IPTablesRuleset('filter', 'FORWARD')
+r.add(s=['_net.another-example.knorrie.org', '2001:db8:77:88::99'],
+      d='example.knorrie.org', r='-p tcp -m tcp --dport 443 -j ACCEPT')
+fw.add(r)
+
 r, h = util.input_ssh('_net.example.knorrie.org')
 fw.add(r)
 ha.add(h)
@@ -33,4 +38,4 @@ fw.add(util.end('INPUT'))
 
 fw.set_policy('filter', 'OUTPUT', 'ALLOW')
 
-util.write_everything('example1', fw, ha)
+util.write_everything('example-host', fw, ha)
