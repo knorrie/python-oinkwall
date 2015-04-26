@@ -3,7 +3,9 @@ python-oinkwall
 
 Oinkwall is a python library that provides a highly programmable way to help you to generate low level Linux IPTables rule files and hosts.allow rules. It aims at handling the boring parts (resolving domain names, putting the IPv4 and IPv6 addresses in the right place) for you, while it completely leaves you with the freedom to use raw iptables commands as much as possible.
 
-Unlike most firewall tools, it does not try to impose using any higher level abstractions on you. It operates on the level that programs like iptables-save and iptables-restore work on. It simply helps you to easier organize your iptables rules.
+Unlike most firewall tools, it does not try to impose using any higher level abstractions on you. It operates on the level that programs like iptables-save and iptables-restore work on. It simply helps you to easier organize your iptables rules, if you like writing them directly.
+
+The library can be used to assemble a firewall for a single host or router, or for generating a lot of them, as building your own templating system or higher level tools 100% tailored to your own specific situation and your low level rule needs should be pretty easy.
 
 ## A simple example
 
@@ -39,7 +41,8 @@ I started looking around for existing tools to generate firewall scripts for me.
 
 The strenghts of using this library should be:
 * No need to worry about keeping your IPv4 and IPv6 firewall and hosts.allow configuration in sync.
-* Usage of DNS to resolve names to addresses, or to define network ranges and arbitrary lists.
+* Usage of DNS to resolve names to addresses, or to define network ranges and arbitrary lists of addresses.
+* Stays out of your way and does not try to be clever about your actual rules.
 * Ways of usage are limited to your own imagination and effort. It's just a little library, not a stand alone tool, so it can be integrated in any other system.
 
 ## Let's do a tour...
@@ -50,7 +53,7 @@ The idea is that you can create an IPTables and HostsAllow object, and then add 
 
 The firewall.py file isn't that big, and I hope the function definitions are quite self-explanatory, because they resemble the low level iptables syntax.
 
-## Some moar tour...
+## Some more tour...
 
 As you can see in the IPTablesRuleset class source, the add function accepts the arguments command, i, o, s, d, r and comment.
 
@@ -58,9 +61,39 @@ Command corresponds to using -I or -A etc... on the iptables command line, so sp
 
 i and o are input or output interfaces, accepting a single interface description, or a dictionary for an interface, or a list of them. Instead of just passing i='eth0', which is not possible yet, because I wanted to have this README online first, you have to pass a dictionary, like {'IPv4': 'eth0', 'IPv6': 'eth0'}, or a list like [{oinkwall.ipv4: 'ppp0'}, {oinkwall.ipv6: 'he-ipv6-tunnel'}], as the oinkwall import has the field names ipv4 and ipv6 available for this.
 
-s and d are just anything you want to use as source or destination. It's possible to use IPv4 or IPv6 addresses, or hostnames, which will be resolved using DNS, or lists of them, or even nested lists, or you can even use names in DNS which have a TXT record that point to adresses or other names. In the next section of this README I'll explain how.
+This...
 
-The last argument is r. In here, you can put the remainder of the iptables or ip6tables rule, like "-j ACCEPT", or "-p tcp -m tcp --dport 80 -j ACCEPT"
+    r = oinkwall.IPTablesRuleset('filter', 'FORWARD')
+    r.add(s=['_net.another-example.knorrie.org', '2001:db8:77:88::99'],
+          d='example.knorrie.org',
+          r='-p tcp -m tcp --dport 443 -j ACCEPT')
+
+will, when used in a full script, result in these rules being written:
+
+    -A FORWARD -s 203.0.113.0/24 -d 192.0.2.11 -p tcp -m tcp --dport 443 -j ACCEPT
+    -A FORWARD -s 2001:db8:77:2::/120 -d 2001:db8:1998::251 -p tcp -m tcp --dport 443 -j ACCEPT
+    -A FORWARD -s 2001:db8:77:88::99 -d 2001:db8:1998::251 -p tcp -m tcp --dport 443 -j ACCEPT
+
+And this...
+
+    if_ppp4 = {oinkwall.ipv4: 'ppp0'}
+    r = oinkwall.IPTablesRuleset('nat', 'POSTROUTING')
+    r.add(comment='Ugh, NAT :|', o=if_ppp4, r='-j SNAT --to-source 203.0.113.45')
+
+will result in an IPv4 only rule in the nat section like:
+
+    *nat
+    :PREROUTING ACCEPT [0:0]
+    :POSTROUTING ACCEPT [0:0]
+    :OUTPUT ACCEPT [0:0]
+    # Ugh, NAT :|
+    -A POSTROUTING -o ppp0 -j SNAT --to-source 203.0.113.45
+
+s and d are just anything you want to use as source or destination. It's possible to use IPv4 or IPv6 addresses, or hostnames, which will be resolved using DNS, or lists of them, or even nested lists, or you can even use names in DNS which have a TXT record that point to adresses or other names. Below is an example of how you can do this with DNS records.
+
+In r, you can put the remainder of the iptables or ip6tables rule, like "-j ACCEPT", or "-p tcp -m tcp --dport 80 -j ACCEPT" or anything else that iptables or ip6tables accept.
+
+If a comment is given, it's put above the rule in the output, as comment line.
 
 ## Using DNS to store subnet information
 
@@ -93,6 +126,17 @@ Let me demonstrate:
 
 If I would use s="\_net.example.knorrie.org" in a rule, oinkwall will lookup the TXT records and resolve it to 192.0.2.0/24, 2001:db8:1998::/120 and 2001:db8:42:99::/64 for you. The IPv4 range will end up in the IPv4 firewall, and the IPv6 ranges will end up in the IPv6 firewall.
 
+## F.A.Q.
+
+Q: Can I use IPv6 NAT?  
+A: Yes, but it's disabled by default, resulting in errors when you try to use it. Use enable\_ipv6\_nat() on an IPTables object to enable it.
+
+Q: How do I use custom chains?  
+A: Use add\_custom\_chain on the IPTables object, like add\_custom\_chain('filter', 'MYCHAIN'). This will result in the custom chain being added on top of the iptables-restore compatible output.
+
+Q: I don't want to learn how iptables and netfilter work, I just want a simple way to enable a firewall.  
+A: You're probably not the target audience. Have a look at one of the many other tools that exist.
+
 ## Help!!
 
-It's quite probable you just arrived at this page, because you were desperately searching for a tool or programming library that just provides all the funtionality and flexibility that this library does provide you. But... After ending up at the bottom of this page, you think the documentation you just scanned does not really help you that much, because it's TL;DR or just missing the exact thing you needed. In that case, just help me improve it! Email me at hans@knorrie.org with your questions, or talk to me on IRC. I'm Knorrie on IRCnet, OFTC and Freenode. Don't hesitate!
+It's probable you just arrived at this page, because you were searching for a tool or programming library that just provides all the funtionality and flexibility that this library does provide you. But... After ending up at the bottom of this page, you think the documentation you just scanned does not really help you that much, or just missing the exact thing you needed. In that case, just help me improve it! Email me at hans@knorrie.org with your questions, or talk to me on IRC. I'm Knorrie on IRCnet, OFTC and Freenode. Don't hesitate!
