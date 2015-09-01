@@ -1,0 +1,22 @@
+python-oinkwall
+===============
+
+Oinkwall is a python library that provides a highly programmable way to
+help you to generate low level Linux IPTables rule files and hosts.allow
+rules. It aims at handling the boring parts (resolving domain names,
+putting the IPv4 and IPv6 addresses in the right place) for you, while
+it completely leaves you with the freedom to use raw iptables commands
+as much as possible.
+
+Unlike most firewall tools, it does not try to impose using any higher
+level abstractions on you. It operates on the level that programs like
+iptables-save and iptables-restore work on. It simply helps you to
+easier organize your iptables rules, if you like writing them directly
+and adding them together programmatically.
+
+The library can be used to assemble a firewall for a single host or
+router, or for generating a lot of them, as building your own templating
+system or higher level tools 100% tailored to your own specific
+situation and your low level rule needs should be pretty easy.
+
+Read the full README in README.md or `read it on github <https://github.com/knorrie/python-oinkwall>`_.
