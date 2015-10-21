@@ -128,7 +128,6 @@ class IPTables:
 
     def get_iptables_restore_script(self, ipv=ipv4):
         lines = []
-        lines.append('# Firewall configuration written by oinkwall v%s' % __version__)
         for table in self.tables[ipv]:
             lines.append('*%s' % table)
 
@@ -159,7 +158,6 @@ class IPTables:
                         logger.error('No command specified, and not a comment-only '
                                      'rule: %s' % rule)
             lines.append('COMMIT')
-        lines.append('# vim:ft=iptables')
         lines.append('')
         return '\n'.join(lines)
 
