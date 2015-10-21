@@ -533,7 +533,6 @@ class HostsAllow:
 
     def get_hosts_allow_content(self):
         lines = []
-        lines.append('# hosts.allow configuration written by oinkwall v%s' % __version__)
         for rule in self.rules:
             if 'comment' in rule:
                 lines.append("# %s" % rule['comment'])
