@@ -106,7 +106,9 @@ class IPTables:
                 self.rules[ipv][ruleset.table][ruleset.chain].extend(
                     ruleset.rules[ipv])
 
-    def add_custom_chain(self, table, chain, ipv=[ipv4, ipv6]):
+    def add_custom_chain(self, table, chain, ipv=None):
+        if ipv is None:
+            ipv = [ipv4, ipv6]
         for ipvx in flatten(ipv):
             if table not in self.tables[ipvx]:
                 logger.error('Table %s for %s is not valid! has to be one of %s' %
@@ -122,7 +124,9 @@ class IPTables:
                 self.custom_chains[ipvx][table].append(chain)
                 self.rules[ipvx][table][chain] = []
 
-    def set_policy(self, table, chain, target, ipv=[ipv4, ipv6]):
+    def set_policy(self, table, chain, target, ipv=None):
+        if ipv is None:
+            ipv = [ipv4, ipv6]
         for p in ipv:
             self.override_policy[p][table][chain] = target
 
@@ -202,7 +206,16 @@ class IPTablesRuleset:
         else:
             self.def_iface = []
 
-    def add(self, command='A', i=[], o=[], s=[], d=[], r=None, comment=None):
+    def add(self, command='A', i=None, o=None, s=None, d=None, r=None, comment=None):
+        if i is None:
+            i = []
+        if o is None:
+            o = []
+        if s is None:
+            s = []
+        if d is None:
+            d = []
+
         if self.chain not in IPTablesRuleset.wannaio:
             logger.error('Invalid chain name %s' % self.chain)
             return
@@ -535,10 +548,13 @@ class HostsAllowRuleset:
     def __init__(self):
         self.rules = []
 
-    def add(self, daemon=None, s=[], comment=None):
+    def add(self, daemon=None, s=None, comment=None):
         rule = {}
         if daemon:
-            s = flatten(s)
+            if s is None:
+                s = []
+            else:
+                s = flatten(s)
             parsed_s = []
             # don't send the magic word 'all' to the dns resolver, it's a
             # reserved word for hosts.allow
