@@ -454,6 +454,11 @@ class IPTablesRuleset:
 
         return rules
 
+    def __str__(self):
+        return str({'id': self.id, 'table': self.table, 'chain': self.chain,
+                    'def_iface': self.def_iface, 'rules': self.rules})
+
+
 # Simple regex to distuingish between ipv4, ipv6 addresses and hostnames we
 # need to resolve ourselves. This supports IPv6 addresses with optional extra
 # brackets (like [::1]/128) which are also used for for hosts.allow
@@ -575,6 +580,9 @@ class HostsAllowRuleset:
 
         if len(rule) > 0:
             self.rules.append(rule)
+
+    def __str__(self):
+        return str(self.rules)
 
 
 def flatten(l):
