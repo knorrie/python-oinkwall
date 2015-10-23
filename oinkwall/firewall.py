@@ -172,7 +172,6 @@ class IPTables:
 class IPTablesRuleset:
     """ list of firewall rules """
 
-    sequence = -1
     wannaio = {
         'INPUT': 'i',
         'OUTPUT': 'o',
@@ -187,8 +186,6 @@ class IPTablesRuleset:
     # rules
 
     def __init__(self, table, chain):
-        IPTablesRuleset.sequence += 1
-        self.id = IPTablesRuleset.sequence
         self.table = table
         self.chain = chain
         self.rules = {ipv4: [], ipv6: []}
@@ -442,7 +439,7 @@ class IPTablesRuleset:
         return rules
 
     def __str__(self):
-        return str({'id': self.id, 'table': self.table, 'chain': self.chain, 'rules': self.rules})
+        return str({'table': self.table, 'chain': self.chain, 'rules': self.rules})
 
 
 # Simple regex to distuingish between ipv4, ipv6 addresses and hostnames we
