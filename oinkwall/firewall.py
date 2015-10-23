@@ -188,27 +188,25 @@ class IPTablesRuleset:
     def add(self, command='A', i=None, o=None, s=None, d=None, r=None, comment=None):
         if i is None:
             i = []
+        else:
+            i = [{ipv4: x, ipv6: x} if isinstance(x, str) else x for x in flatten(i)]
         if o is None:
             o = []
+        else:
+            o = [{ipv4: x, ipv6: x} if isinstance(x, str) else x for x in flatten(o)]
+
         if s is None:
             s = []
         if d is None:
             d = []
 
-        # XXX: accidentally using o='if_whatever' instead of o=if_whatever
-        # does not produce any error/warning now, and the value is ignored
-        if 'i' in IPTablesRuleset.wannaio[self.chain]:
-            i = flatten(i)
-        elif len(i) != 0:
-            logger.warning('Input interface %s set on %s rule will be '
-                           'ignored' % (i, self.chain))
+        if len(i) > 0 and 'i' not in IPTablesRuleset.wannaio.get(self.chain, 'i'):
+            logger.warning('Input interface %s set on %s rule (o=%s, s=%s, d=%s, r=%s) '
+                           'will be ignored' % (i, self.chain, o, s, d, r))
             i = []
-
-        if 'o' in IPTablesRuleset.wannaio[self.chain]:
-            o = flatten(o)
-        elif len(o) != 0:
-            logger.warning('Output interface %s set on %s rule will be '
-                           'ignored' % (o, self.chain))
+        if len(o) > 0 and 'o' not in IPTablesRuleset.wannaio.get(self.chain, 'o'):
+            logger.warning('Output interface %s set on %s rule (i=%s, s=%s, d=%s, r=%s) '
+                           'will be ignored' % (o, self.chain, i, s, d, r))
             o = []
 
         i4 = [iface for iface in i if ipv4 in iface]
