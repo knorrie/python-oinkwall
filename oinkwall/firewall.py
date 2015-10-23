@@ -28,8 +28,6 @@ import dns.resolver
 import logging
 import re
 
-ipv4 = 'IPv4'
-ipv6 = 'IPv6'
 logger = logging.getLogger("oinkwall")
 
 __version__ = 'UNRELEASED'
@@ -39,12 +37,12 @@ class IPTables:
     def __init__(self):
 
         self.tables_noipv6nat = {
-            ipv4: ['raw', 'mangle', 'nat', 'filter'],
-            ipv6: ['raw', 'mangle', 'filter']
+            4: ['raw', 'mangle', 'nat', 'filter'],
+            6: ['raw', 'mangle', 'filter']
         }
         self.tables_ipv6nat = {
-            ipv4: ['raw', 'mangle', 'nat', 'filter'],
-            ipv6: ['raw', 'mangle', 'nat', 'filter']
+            4: ['raw', 'mangle', 'nat', 'filter'],
+            6: ['raw', 'mangle', 'nat', 'filter']
         }
         self.tables = self.tables_noipv6nat
 
@@ -64,7 +62,7 @@ class IPTables:
         self.rules = {}
         self.custom_chains = {}
         self.override_policy = {}
-        for ipv in [ipv4, ipv6]:
+        for ipv in [4, 6]:
             self.rules[ipv] = {}
             self.custom_chains[ipv] = {}
             self.override_policy[ipv] = {}
@@ -83,12 +81,12 @@ class IPTables:
 
     def add(self, rulesets):
         for ruleset in flatten(rulesets):
-            for ipv in [ipv4, ipv6]:
+            for ipv in [4, 6]:
                 if len(ruleset.rules[ipv]) == 0:
                     continue
 
                 if ruleset.table not in self.tables[ipv]:
-                    other_ipv = (set([ipv4, ipv6]) - set([ipv])).pop()
+                    other_ipv = (set([4, 6]) - set([ipv])).pop()
                     if ruleset.table in self.tables[other_ipv]:
                         logger.warning('Not generating %s rules, table: %s, table only '
                                        'valid for: %s' % (ipv, ruleset.table, other_ipv))
@@ -108,7 +106,7 @@ class IPTables:
 
     def add_custom_chain(self, table, chain, ipv=None):
         if ipv is None:
-            ipv = [ipv4, ipv6]
+            ipv = [4, 6]
         for ipvx in flatten(ipv):
             if table not in self.tables[ipvx]:
                 logger.error('Table %s for %s is not valid! has to be one of %s' %
@@ -126,11 +124,11 @@ class IPTables:
 
     def set_policy(self, table, chain, target, ipv=None):
         if ipv is None:
-            ipv = [ipv4, ipv6]
+            ipv = [4, 6]
         for p in ipv:
             self.override_policy[p][table][chain] = target
 
-    def get_iptables_restore_script(self, ipv=ipv4):
+    def get_iptables_restore_script(self, ipv=4):
         lines = []
         for table in self.tables[ipv]:
             lines.append('*%s' % table)
@@ -166,7 +164,7 @@ class IPTables:
         return '\n'.join(lines)
 
     def get_ip6tables_restore_script(self):
-        return self.get_iptables_restore_script(ipv6)
+        return self.get_iptables_restore_script(6)
 
 
 class IPTablesRuleset:
@@ -183,17 +181,17 @@ class IPTablesRuleset:
     def __init__(self, table, chain):
         self.table = table
         self.chain = chain
-        self.rules = {ipv4: [], ipv6: []}
+        self.rules = {4: [], 6: []}
 
     def add(self, command='A', i=None, o=None, s=None, d=None, r=None, comment=None):
         if i is None:
             i = []
         else:
-            i = [{ipv4: x, ipv6: x} if isinstance(x, str) else x for x in flatten(i)]
+            i = [{4: x, 6: x} if isinstance(x, str) else x for x in flatten(i)]
         if o is None:
             o = []
         else:
-            o = [{ipv4: x, ipv6: x} if isinstance(x, str) else x for x in flatten(o)]
+            o = [{4: x, 6: x} if isinstance(x, str) else x for x in flatten(o)]
 
         if s is None:
             s = []
@@ -209,10 +207,10 @@ class IPTablesRuleset:
                            'will be ignored' % (o, self.chain, i, s, d, r))
             o = []
 
-        i4 = [iface for iface in i if ipv4 in iface]
-        i6 = [iface for iface in i if ipv6 in iface]
-        o4 = [iface for iface in o if ipv4 in iface]
-        o6 = [iface for iface in o if ipv6 in iface]
+        i4 = [iface for iface in i if 4 in iface]
+        i6 = [iface for iface in i if 6 in iface]
+        o4 = [iface for iface in o if 4 in iface]
+        o6 = [iface for iface in o if 6 in iface]
 
         has_i4 = len(i4) > 0
         has_i6 = len(i6) > 0
@@ -348,9 +346,9 @@ class IPTablesRuleset:
 
         todo = {}
         if do_io_4 and do_iosd_4 and do_sd_4:
-            todo[ipv4] = (i4, o4, s4, d4)
+            todo[4] = (i4, o4, s4, d4)
         if do_io_6 and do_iosd_6 and do_sd_6:
-            todo[ipv6] = (i6, o6, s6, d6)
+            todo[6] = (i6, o6, s6, d6)
 
         for ipv in todo:
             rules = self.mk_iosd(ipv, command, *todo[ipv])
@@ -431,21 +429,26 @@ class IPTablesRuleset:
         return str({'table': self.table, 'chain': self.chain, 'rules': self.rules})
 
 
+class Interface(object):
+    def __init__(self, ifname, ipv=None):
+        if ipv is None:
+            ipv = [4, 6]
+
+
 # Simple regex to distuingish between ipv4, ipv6 addresses and hostnames we
 # need to resolve ourselves. This supports IPv6 addresses with optional extra
 # brackets (like [::1]/128) which are also used for for hosts.allow
-sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<%s>[\d./]+)|(?P<%s>(?=.*:)'
-                      '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$' %
-                      (ipv4, ipv6))
+sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'
+                      '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$')
 
 
 def parse_address_list(a):
     a4, a6 = ([], [])
     for addr in a:
         m = sd_regex.match(addr).groupdict()
-        if m[ipv4]:
+        if m['ipv4']:
             a4.append(addr)
-        elif m[ipv6]:
+        elif m['ipv6']:
             a6.append(addr)
         elif m['fqdn']:
             # throw up badly if domain names cannot be resolved
