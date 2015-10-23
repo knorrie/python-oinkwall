@@ -180,11 +180,6 @@ class IPTablesRuleset:
         'FORWARD': 'io',
     }
 
-    # id
-    # table
-    # chain
-    # rules
-
     def __init__(self, table, chain):
         self.table = table
         self.chain = chain
