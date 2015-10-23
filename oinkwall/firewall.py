@@ -33,6 +33,10 @@ logger = logging.getLogger("oinkwall")
 __version__ = 'UNRELEASED'
 
 
+class OinkwallException(Exception):
+    pass
+
+
 class IPTables:
     def __init__(self):
 
@@ -492,7 +496,7 @@ def parse_address_list(a):
                     raise e
 
             if r4 is None and r6 is None and rtxt is None:
-                raise Exception('No A, AAAA or TXT found for %s' % m['fqdn'])
+                raise OinkwallException('No A, AAAA or TXT found for %s' % m['fqdn'])
         else:
             logger.critical('Regular expression for parse_address_list cannot '
                             'deal with %s' % addr)
