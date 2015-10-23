@@ -200,10 +200,6 @@ class IPTablesRuleset:
         if d is None:
             d = []
 
-        if self.chain not in IPTablesRuleset.wannaio:
-            logger.error('Invalid chain name %s' % self.chain)
-            return
-
         # XXX: accidentally using o='if_whatever' instead of o=if_whatever
         # does not produce any error/warning now, and the value is ignored
         if 'i' in IPTablesRuleset.wannaio[self.chain]:
