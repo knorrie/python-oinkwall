@@ -32,7 +32,7 @@ ipv4 = 'IPv4'
 ipv6 = 'IPv6'
 logger = logging.getLogger("oinkwall")
 
-__version__ = '0.3'
+__version__ = 'UNRELEASED'
 
 
 class IPTables:
