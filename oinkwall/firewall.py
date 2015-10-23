@@ -184,7 +184,6 @@ class IPTablesRuleset:
     # id
     # table
     # chain
-    # def_iface
     # rules
 
     def __init__(self, table, chain):
@@ -192,19 +191,7 @@ class IPTablesRuleset:
         self.id = IPTablesRuleset.sequence
         self.table = table
         self.chain = chain
-        self.def_iface = []
-
         self.rules = {ipv4: [], ipv6: []}
-
-    def set_default_iface(self, iface):
-        if self.chain == 'FORWARD':
-            logger.warning('set_default_iface on FORWARD rules will be ignored... '
-                           'not implemented yet.')
-            iface = []
-        elif iface is not None:
-            self.def_iface = flatten(iface)
-        else:
-            self.def_iface = []
 
     def add(self, command='A', i=None, o=None, s=None, d=None, r=None, comment=None):
         if i is None:
@@ -223,14 +210,14 @@ class IPTablesRuleset:
         # XXX: accidentally using o='if_whatever' instead of o=if_whatever
         # does not produce any error/warning now, and the value is ignored
         if 'i' in IPTablesRuleset.wannaio[self.chain]:
-            i = flatten(i) if len(i) > 0 else self.def_iface
+            i = flatten(i)
         elif len(i) != 0:
             logger.warning('Input interface %s set on %s rule will be '
                            'ignored' % (i, self.chain))
             i = []
 
         if 'o' in IPTablesRuleset.wannaio[self.chain]:
-            o = flatten(o) if len(o) > 0 else self.def_iface
+            o = flatten(o)
         elif len(o) != 0:
             logger.warning('Output interface %s set on %s rule will be '
                            'ignored' % (o, self.chain))
@@ -455,8 +442,7 @@ class IPTablesRuleset:
         return rules
 
     def __str__(self):
-        return str({'id': self.id, 'table': self.table, 'chain': self.chain,
-                    'def_iface': self.def_iface, 'rules': self.rules})
+        return str({'id': self.id, 'table': self.table, 'chain': self.chain, 'rules': self.rules})
 
 
 # Simple regex to distuingish between ipv4, ipv6 addresses and hostnames we
