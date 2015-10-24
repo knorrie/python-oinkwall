@@ -263,7 +263,7 @@ class IPTablesRuleset:
             if warn_io_4 and warn_io_6:
                 assert do_io_4 is False and do_io_6 is False
                 logger.warning('Not generating any IPv4/IPv6 rule, your input logic '
-                               'is likely broken: i4=%, o4=%, i6=%, o6=%' %
+                               'is likely broken: i4=%s, o4=%s, i6=%s, o6=%s' %
                                (i4, o4, i6, o6))
             elif warn_io_4:
                 assert do_io_4 is False
