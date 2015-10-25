@@ -1,20 +1,20 @@
 import oinkwall
 
 # Dummy network interfaces to force a rule to IPv4 or IPv6 only
-if_4 = {oinkwall.ipv4: None}
-if_6 = {oinkwall.ipv6: None}
+if_4 = {4: None}
+if_6 = {6: None}
 
 # Define an interface to use with i= or o=
-if_lo4 = {oinkwall.ipv4: 'lo'}
-if_lo6 = {oinkwall.ipv6: 'lo'}
+if_lo4 = {4: 'lo'}
+if_lo6 = {6: 'lo'}
 if_lo = [if_lo4, if_lo6]
 
 # ...or just an ipv4 and ipv6 enabled interface
-if_eth0 = {oinkwall.ipv4: 'eth0', oinkwall.ipv6: 'eth0'}
+if_eth0 = {4: 'eth0', 6: 'eth0'}
 
 # If your public IPv6 interface is different from IPv4, because
 # it's a tunnel, e.g. via HE:
-if_public = {oinkwall.ipv4: 'ppp0', oinkwall.ipv6: 'he-tunnel'}
+if_public = {4: 'ppp0', 6: 'he-tunnel'}
 
 
 def input_lo():

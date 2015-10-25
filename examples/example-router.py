@@ -20,15 +20,15 @@ ip_ppp4 = '203.0.113.46'
 
 ip_that_we_nat_something_to = '192.168.25.17'
 
-if_lan4 = {oinkwall.ipv4: 'eth0'}
-if_lan6 = {oinkwall.ipv6: 'eth0'}
+if_lan4 = {4: 'eth0'}
+if_lan6 = {6: 'eth0'}
 if_lan = [if_lan4, if_lan6]
-if_openvpn = {oinkwall.ipv4: 'tun0'}
-if_ppp4 = {oinkwall.ipv4: 'ppp0'}
-if_ppp6 = {oinkwall.ipv6: 'ppp0'}
+if_openvpn = {4: 'tun0'}
+if_ppp4 = {4: 'ppp0'}
+if_ppp6 = {6: 'ppp0'}
 if_ppp = [if_ppp4, if_ppp6]
 
-if_ipip6 = {oinkwall.ipv4: 'ipip6'}
+if_ipip6 = {4: 'ipip6'}
 
 ipip6_endpoints = [
     'ip-in-ip-tunnel-endpoint.example.knorrie.org',

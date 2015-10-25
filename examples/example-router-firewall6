@@ -1,4 +1,3 @@
-# Firewall configuration written by oinkwall v0.3
 *raw
 :PREROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
@@ -68,4 +67,3 @@ COMMIT
 -A OUTPUT -m owner --uid-owner 487 -j ACCEPT
 -A OUTPUT -m limit --limit 10/sec --limit-burst 100 -j LOG --log-prefix "IPT OUTPUT DEAD: " --log-level 7
 COMMIT
-# vim:ft=iptables
