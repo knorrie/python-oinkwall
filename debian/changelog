@@ -1,3 +1,12 @@
+oinkwall (0.4-1) unstable; urgency=low
+
+  * Breaks API! 'IPvX' with just X in interface declarations, like {4: 'eth0'}
+    instead of {'IPv4': 'eth0'}
+  * Allow simple names as interface, like i='eth0'
+  * Cosmetics, small fixes and changes
+
+ -- Hans van Kranenburg <hans.van.kranenburg@mendix.com>  Fri, 06 Nov 2015 17:53:59 +0100
+
 oinkwall (0.3-1) unstable; urgency=low
 
   * Initial release.
