@@ -30,8 +30,6 @@ import re
 
 logger = logging.getLogger("oinkwall")
 
-__version__ = 'UNRELEASED'
-
 
 class OinkwallException(Exception):
     pass
