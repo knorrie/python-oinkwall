@@ -1,0 +1,69 @@
+*raw
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -i eth0 -m mac --mac-source 14:56:e2:b5:a5:eb -j MARK --set-mark 200
+-A FORWARD -o ppp0 -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+COMMIT
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-I INPUT -i lo -j ACCEPT
+-A INPUT -s 2001:db8:1998::/120 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s 2001:db8:42:99::/64 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s 2001:db8:1998:fb::/64 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p udp -m udp --dport 1194 -j ACCEPT
+-A INPUT -s 2001:db8:1998:fb::/64 -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -s 2001:db8:1998:fb::/64 -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -i ppp0 -s fe80::/10 -p udp --dport 546 -j ACCEPT
+# IPSec
+-A INPUT -s 2001:db8::42:11 -p esp -j ACCEPT
+# IKE
+-A INPUT -s 2001:db8::42:11 -p udp -m udp --dport 500 -j ACCEPT
+# 4in6
+-A INPUT -s 2001:db8::42:11 -p 4 -j ACCEPT
+-A INPUT -p ipv6-icmp -j ACCEPT
+-A INPUT -d ff02::/16 -j ACCEPT
+-A INPUT -p udp -m multiport --dport 33434:33535 -j REJECT
+-A INPUT -m limit --limit 10/sec --limit-burst 100 -j LOG --log-prefix "IPT INPUT DEAD: " --log-level 7
+-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -m conntrack --ctstate INVALID -j DROP
+-A FORWARD -i eth0 -o ppp0 -j ACCEPT
+-A FORWARD -i ppp0 -o eth0 -s 2001:db8:77:2::/120 -d 2001:db8:1998:fb::5678 -p tcp -m tcp --dport 22 -j ACCEPT
+-A FORWARD -p ipv6-icmp -j ACCEPT
+-A FORWARD -d ff02::/16 -j ACCEPT
+-A FORWARD -m limit --limit 10/sec --limit-burst 100 -j LOG --log-prefix "IPT FORWARD DEAD: " --log-level 7
+-A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -m conntrack --ctstate INVALID -j DROP
+-I OUTPUT -o lo -j ACCEPT
+-A OUTPUT -m owner --uid-owner 0 -j ACCEPT
+-A OUTPUT -m owner --uid-owner 487 -j ACCEPT
+-A OUTPUT -p tcp -m tcp --dport 53 -m owner --uid-owner bind -j ACCEPT
+-A OUTPUT -p udp -m udp --dport 53 -m owner --uid-owner bind -j ACCEPT
+-A OUTPUT -p udp -m udp --dport 123 -m owner --uid-owner ntp -j ACCEPT
+# IPSec
+-A OUTPUT -d 2001:db8::42:11 -p esp -j ACCEPT
+# IKE
+-A OUTPUT -d 2001:db8::42:11 -p udp -m udp --dport 500 -j ACCEPT
+# 4in6
+-A OUTPUT -d 2001:db8::42:11 -p 4 -j ACCEPT
+-A OUTPUT -p ipv6-icmp -j ACCEPT
+-A OUTPUT -d ff02::/16 -j ACCEPT
+-A OUTPUT -m owner --uid-owner 0 -j ACCEPT
+-A OUTPUT -m owner --uid-owner 487 -j ACCEPT
+-A OUTPUT -m limit --limit 10/sec --limit-burst 100 -j LOG --log-prefix "IPT OUTPUT DEAD: " --log-level 7
+COMMIT

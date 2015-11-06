@@ -1,0 +1,33 @@
+*raw
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ALLOW [0:0]
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-I INPUT -i lo -j ACCEPT
+# This is a comment
+-A INPUT -s 192.0.2.51 -p tcp -m tcp --dport 25 -j ACCEPT
+-A INPUT -s 192.0.2.4 -p tcp -m tcp --dport 25 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+-A INPUT -s 192.0.2.0/24 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+-A INPUT -p udp -m multiport --dport 33434:33535 -j REJECT
+-A INPUT -m limit --limit 10/sec --limit-burst 100 -j LOG --log-prefix "IPT INPUT DEAD: " --log-level 7
+-A FORWARD -s 203.0.113.0/24 -d 192.0.2.11 -p tcp -m tcp --dport 443 -j ACCEPT
+COMMIT

@@ -1,0 +1,30 @@
+*raw
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ALLOW [0:0]
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-I INPUT -i lo -j ACCEPT
+# This is a comment
+-A INPUT -s 2001:db8::42:11 -p tcp -m tcp --dport 25 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+-A INPUT -s 2001:db8:1998::/120 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s 2001:db8:42:99::/64 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p ipv6-icmp -j ACCEPT
+-A INPUT -d ff02::/16 -j ACCEPT
+-A INPUT -p udp -m multiport --dport 33434:33535 -j REJECT
+-A INPUT -m limit --limit 10/sec --limit-burst 100 -j LOG --log-prefix "IPT INPUT DEAD: " --log-level 7
+-A FORWARD -s 2001:db8:77:2::/120 -d 2001:db8:1998::251 -p tcp -m tcp --dport 443 -j ACCEPT
+-A FORWARD -s 2001:db8:77:88::99 -d 2001:db8:1998::251 -p tcp -m tcp --dport 443 -j ACCEPT
+COMMIT
