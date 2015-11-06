@@ -71,7 +71,7 @@ As you can see in the IPTablesRuleset class source, the add function accepts the
 
 Command corresponds to using -I or -A etc... on the iptables command line, so specifying command='I' will help you insert a rule into on top of the ruleset when applied by iptables. command='A' is the default.
 
-i and o are input or output interfaces, accepting a single interface description, or a dictionary for an interface, or a list of them. Instead of just passing i='eth0', which is not possible yet, because I wanted to have this README online first, you have to pass a dictionary, like {'IPv4': 'eth0', 'IPv6': 'eth0'}, or a list like [{oinkwall.ipv4: 'ppp0'}, {oinkwall.ipv6: 'he-ipv6-tunnel'}], as the oinkwall import has the field names ipv4 and ipv6 available for this.
+i and o are input or output interfaces, accepting a single interface description, or a dictionary for an interface, or a list of them. You can just pass i='eth0', or use a dictionary, like {4: 'ppp0', 6: 'he-ipv6-tunnel'} or {4: 'eth0'} if your IPv4 and IPv6 traffic uses separate interfaces (e.g. when using an IPv6 tunnel), or when an interface only supports IPv4 or IPv6.
 
 This...
 
