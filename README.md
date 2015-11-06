@@ -47,9 +47,9 @@ The strenghts of using this library should be:
 
 ## Let's do a tour...
 
-The oinkwall library contains a single python module, firewall.py (yes, I expect you to clone this repository and inspect the source code right now), which contains the classes IPTables, IPTablesRuleset, HostsAllow and HostsAllowRuleset.
+The oinkwall library contains a single python module, `firewall.py`, which contains the classes `IPTables`, `IPTablesRuleset`, `HostsAllow` and `HostsAllowRuleset`.
 
-The idea is that you can create an IPTables and HostsAllow object, and then add IPTablesRuleset and HostsAllowRuleset to it. When you're done adding rules, call the get\_iptables\_restore\_script and get\_ip6tables\_restore\_script on the IPTables object to get output you can directly feed to iptables-restore and ip6tables-restore. HostsAllow has a get\_hosts\_allow\_content function, which returns the content of your hosts.allow file. It assumes you have ALL:ALL in hosts.deny.
+The idea is that you can create an `IPTables` and `HostsAllow` object, and then add `IPTablesRuleset` and `HostsAllowRuleset` to it. When you're done adding rules, call the `get_iptables_restore_script` and `get_ip6tables_restore_script` on the `IPTables` object to get output you can directly feed to iptables-restore and ip6tables-restore. `HostsAllow` has a `get_hosts_allow_content` function, which returns the content of your `hosts.allow` file. It assumes you have `ALL:ALL` in hosts.deny.
 
     import oinkwall
 
@@ -67,11 +67,11 @@ The firewall.py file isn't that big, and I hope the function definitions are qui
 
 ## Some more tour...
 
-As you can see in the IPTablesRuleset class source, the add function accepts the arguments command, i, o, s, d, r and comment.
+As you can see in the IPTablesRuleset class source, the add function accepts the arguments `command, i, o, s, d, r` and `comment`.
 
-Command corresponds to using -I or -A etc... on the iptables command line, so specifying command='I' will help you insert a rule into on top of the ruleset when applied by iptables. command='A' is the default.
+Command corresponds to using `-I` or `-A` etc... on the iptables command line, so specifying `command='I'` will help you insert a rule into on top of the ruleset when applied by iptables. command='A' is the default.
 
-i and o are input or output interfaces, accepting a single interface description, or a dictionary for an interface, or a list of them. Instead of just passing i='eth0', which is not possible yet, because I wanted to have this README online first, you have to pass a dictionary, like {'IPv4': 'eth0', 'IPv6': 'eth0'}, or a list like [{oinkwall.ipv4: 'ppp0'}, {oinkwall.ipv6: 'he-ipv6-tunnel'}], as the oinkwall import has the field names ipv4 and ipv6 available for this.
+i and o are input or output interfaces, accepting a single interface description, or a dictionary for an interface, or a list of them. You can just pass `i='eth0'`, or use a dictionary, like `{4: 'ppp0', 6: 'he-ipv6-tunnel'}` or `{4: 'eth0'}` if your IPv4 and IPv6 traffic uses separate interfaces (e.g. when using an IPv6 tunnel), or when an interface only supports IPv4 or IPv6.
 
 This...
 
@@ -103,7 +103,7 @@ will result in an IPv4 only rule in the nat section like:
 
 s and d are just anything you want to use as source or destination. It's possible to use IPv4 or IPv6 addresses, or hostnames, which will be resolved using DNS, or lists of them, or even nested lists, or you can even use names in DNS which have a TXT record that point to adresses or other names. Below is an example of how you can do this with DNS records.
 
-In r, you can put the remainder of the iptables or ip6tables rule, like "-j ACCEPT", or "-p tcp -m tcp --dport 80 -j ACCEPT" or anything else that iptables or ip6tables accept.
+In r, you can put the remainder of the iptables or ip6tables rule, like `"-j ACCEPT"`, or `"-p tcp -m tcp --dport 80 -j ACCEPT"` or anything else that iptables or ip6tables accept.
 
 If a comment is given, it's put above the rule in the output, as comment line.
 
@@ -136,19 +136,19 @@ Let me demonstrate:
     _net        60  IN    TXT    "203.0.113.0/24"
                 60  IN    TXT    "2001:db8:77:2::/120"
 
-If I would use s="\_net.example.knorrie.org" in a rule, oinkwall will lookup the TXT records and resolve it to 192.0.2.0/24, 2001:db8:1998::/120 and 2001:db8:42:99::/64 for you. The IPv4 range will end up in the IPv4 firewall, and the IPv6 ranges will end up in the IPv6 firewall.
+If I would use `s="_net.example.knorrie.org"` in a rule, oinkwall will lookup the TXT records and resolve it to `192.0.2.0/24`, `2001:db8:1998::/120` and `2001:db8:42:99::/64` for you. The IPv4 range will end up in the IPv4 firewall, and the IPv6 ranges will end up in the IPv6 firewall.
 
 ## F.A.Q.
 
 Q: Can I use IPv6 NAT?  
-A: Yes, but it's disabled by default, resulting in errors when you try to use it. Use enable\_ipv6\_nat() on an IPTables object to enable it.
+A: Yes, but it's disabled by default, resulting in errors when you try to use it. Use `enable_ipv6_nat()` on an `IPTables` object to enable it.
 
 Q: How do I use custom chains?  
-A: Use add\_custom\_chain on the IPTables object, like add\_custom\_chain('filter', 'MYCHAIN'). This will result in the custom chain being added on top of the iptables-restore compatible output.
+A: Use `add_custom_chain` on the IPTables object, like `add_custom_chain('filter', 'MYCHAIN')`. This will result in the custom chain being added on top of the iptables-restore compatible output.
 
 Q: I don't want to learn how iptables and netfilter work, I just want a simple way to enable a firewall.  
 A: You're probably not the target audience. Have a look at one of the many other tools that exist.
 
 ## Help!!
 
-It's probable you just arrived at this page, because you were searching for a tool or programming library that just provides all the funtionality and flexibility that this library does provide you. But... After ending up at the bottom of this page, you think the documentation you just scanned does not really help you that much, or just missing the exact thing you needed. In that case, just help me improve it! Email me at hans@knorrie.org with your questions, or talk to me on IRC. I'm Knorrie on IRCnet, OFTC and Freenode. Don't hesitate!
+It's probable you just arrived at this page, because you were searching for a tool or programming library that just provides all the funtionality and flexibility that this library does provide you. But... After ending up at the bottom of this page, you think the documentation you just scanned does not really help you that much, or just missing the exact thing you needed. In that case, just help me improve it! Email me at hans@knorrie.org with your questions, or talk to me on IRC. I'm Knorrie on IRCnet, OFTC and Freenode.
