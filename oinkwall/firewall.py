@@ -537,19 +537,15 @@ class HostsAllowRuleset:
             else:
                 s = flatten(s)
                 parsed_s = []
-                # don't send the magic word 'all' to the dns resolver, it's a
-                # reserved word for hosts.allow
-                s4, s6 = parse_address_list([item for item in s
-                                             if item.lower() != 'all'])
-                # add square brackets to IPv6 addresses
-                # (e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48)
-                s6 = map(lambda x: re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$',
-                                          r'[\1]\2', x), s6)
-                parsed_s.extend(s4)
-                parsed_s.extend(s6)
-                if len([item for item in s if item.lower() == 'all']) != 0:
+                if any([item for item in s if item.lower() == 'all']):
                     parsed_s.append('all')
-
+                else:
+                    s4, s6 = parse_address_list(s)
+                    # add square brackets to IPv6 addresses
+                    # (e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48)
+                    s6 = map(lambda x: re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$', r'[\1]\2', x), s6)
+                    parsed_s.extend(s4)
+                    parsed_s.extend(s6)
                 rule.update({'daemon': daemon, 's': parsed_s})
 
         if comment:
