@@ -1,3 +1,10 @@
+oinkwall (0.4.1-1) unstable; urgency=medium
+
+  * When using 'all' in hosts.allow, ignore other addresses
+  * Ignore hosts.allow daemon with empty address list
+
+ -- Hans van Kranenburg <hans.van.kranenburg@mendix.com>  Mon, 06 Jun 2016 17:56:41 +0200
+
 oinkwall (0.4-1) unstable; urgency=low
 
   * Breaks API! 'IPvX' with just X in interface declarations, like {4: 'eth0'}
