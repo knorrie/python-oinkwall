@@ -7,13 +7,13 @@ with open('README.pypi') as f:
 setup(
     name='oinkwall',
     packages=['oinkwall'],
-    version='0.4',
+    version='0.4.1',
     description='Python module for programmatically creating low level iptables rule sets.',
     long_description=long_description,
     author='Hans van Kranenburg',
     author_email='hans@knorrie.org',
     url='https://github.com/knorrie/python-oinkwall',
-    download_url='https://github.com/knorrie/python-oinkwall/tarball/v0.4',
+    download_url='https://github.com/knorrie/python-oinkwall/tarball/v0.4.1',
     keywords=['firewall', 'iptables', 'ipv6'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
