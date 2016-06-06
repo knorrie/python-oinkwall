@@ -531,26 +531,26 @@ class HostsAllowRuleset:
 
     def add(self, daemon=None, s=None, comment=None):
         rule = {}
-        if daemon:
-            if s is None:
-                s = []
+        if daemon is not None:
+            if s is None or len(s) == 0:
+                logger.warning("Ignoring hosts.allow daemon %s with empty address list" % daemon)
             else:
                 s = flatten(s)
-            parsed_s = []
-            # don't send the magic word 'all' to the dns resolver, it's a
-            # reserved word for hosts.allow
-            s4, s6 = parse_address_list([item for item in s
-                                         if item.lower() != 'all'])
-            # add square brackets to IPv6 addresses
-            # (e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48)
-            s6 = map(lambda x: re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$',
-                                      r'[\1]\2', x), s6)
-            parsed_s.extend(s4)
-            parsed_s.extend(s6)
-            if len([item for item in s if item.lower() == 'all']) != 0:
-                parsed_s.append('all')
+                parsed_s = []
+                # don't send the magic word 'all' to the dns resolver, it's a
+                # reserved word for hosts.allow
+                s4, s6 = parse_address_list([item for item in s
+                                             if item.lower() != 'all'])
+                # add square brackets to IPv6 addresses
+                # (e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48)
+                s6 = map(lambda x: re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$',
+                                          r'[\1]\2', x), s6)
+                parsed_s.extend(s4)
+                parsed_s.extend(s6)
+                if len([item for item in s if item.lower() == 'all']) != 0:
+                    parsed_s.append('all')
 
-            rule.update({'daemon': daemon, 's': parsed_s})
+                rule.update({'daemon': daemon, 's': parsed_s})
 
         if comment:
             rule.update({'comment': comment})
