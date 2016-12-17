@@ -25,6 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import dns.resolver
+import ipaddr
 import logging
 import re
 
@@ -444,6 +445,10 @@ sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:
                       '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$')
 
 
+sortableip = lambda ip: ipaddr.IPNetwork(ip)
+sortablerr = lambda rr: rr.to_text()
+
+
 def parse_address_list(a):
     a4, a6 = ([], [])
     for addr in a:
@@ -460,8 +465,9 @@ def parse_address_list(a):
             r6 = None
             try:
                 r4 = dns.resolver.query(m['fqdn'], dns.rdatatype.A)
-                a4.extend(['%s%s' % (m['negate'], rr.to_text())
-                          for rr in sorted(r4.rrset)])
+                addresses = [rr.to_text() for rr in r4.rrset]
+                addresses.sort(key=sortableip)
+                a4.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
             except dns.resolver.NoAnswer:
                 pass
             except dns.resolver.NXDOMAIN, e:
@@ -469,7 +475,8 @@ def parse_address_list(a):
                 raise e
             try:
                 r6 = dns.resolver.query(m['fqdn'], dns.rdatatype.AAAA)
-                addresses = [rr.to_text() for rr in sorted(r6.rrset)]
+                addresses = [rr.to_text() for rr in r6.rrset]
+                addresses.sort(key=sortableip)
                 a6.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
             except dns.resolver.NoAnswer:
                 pass
@@ -480,7 +487,8 @@ def parse_address_list(a):
             if r4 is None and r6 is None:
                 try:
                     rtxt = dns.resolver.query(m['fqdn'], dns.rdatatype.TXT)
-                    for rr in sorted(rtxt.rrset):
+                    rrset = sorted(rtxt.rrset, key=sortablerr)
+                    for rr in rrset:
                         txt = rr.to_text()
                         if txt.startswith('"') and txt.endswith('"'):
                             txt = txt[1:-1]
