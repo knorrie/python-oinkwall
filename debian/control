@@ -7,7 +7,7 @@ Standards-Version: 3.9.4
 
 Package: python-oinkwall
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-dnspython
+Depends: ${python:Depends}, ${misc:Depends}, python-dnspython, python-ipaddr
 Description: Python module for programmatically creating low level
  iptables rule sets. Oinkwall aims at reducing friction of handling
  IPv4 and IPv6 rule sets in parallel and handling the resolving of
