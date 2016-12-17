@@ -1,3 +1,13 @@
+oinkwall (0.4.2-1) unstable; urgency=medium
+
+  * Fix sorting of address lists
+  * setup.py: v0.4.2
+  * debian/control: depend on python-ipaddr
+  * debian/rules: switch to dh_python with pybuild
+  * debian/control: Priority extra -> optional
+
+ -- Hans van Kranenburg <hans.van.kranenburg@mendix.com>  Sat, 17 Dec 2016 22:30:08 +0100
+
 oinkwall (0.4.1-1) unstable; urgency=medium
 
   * When using 'all' in hosts.allow, ignore other addresses
