@@ -1,3 +1,9 @@
+oinkwall (0.4.2-1~mx7u1) unstable; urgency=medium
+
+  * debian/gbp.conf: build in debian-wheezy branch
+
+ -- Hans van Kranenburg <hans.van.kranenburg@mendix.com>  Sat, 17 Dec 2016 22:40:53 +0100
+
 oinkwall (0.4.2-1) unstable; urgency=medium
 
   * Fix sorting of address lists
