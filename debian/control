@@ -1,6 +1,6 @@
 Source: oinkwall
 Section: net
-Priority: extra
+Priority: optional
 Maintainer: Hans van Kranenburg <hans.van.kranenburg@mendix.com>
 Build-Depends: debhelper (>= 8), dh-python, python-all (>= 2.7), python-setuptools
 Standards-Version: 3.9.4
