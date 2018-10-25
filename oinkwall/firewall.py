@@ -445,8 +445,12 @@ sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:
                       '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$')
 
 
-sortableip = lambda ip: ipaddr.IPNetwork(ip)
-sortablerr = lambda rr: rr.to_text()
+def sortableip(ip):
+    return ipaddr.IPNetwork(ip)
+
+
+def sortablerr(rr):
+    return rr.to_text()
 
 
 def parse_address_list(a):
@@ -470,7 +474,7 @@ def parse_address_list(a):
                 a4.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
             except dns.resolver.NoAnswer:
                 pass
-            except dns.resolver.NXDOMAIN, e:
+            except dns.resolver.NXDOMAIN as e:
                 logger.critical("NXDOMAIN on %s" % m['fqdn'])
                 raise e
             try:
@@ -480,7 +484,7 @@ def parse_address_list(a):
                 a6.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
             except dns.resolver.NoAnswer:
                 pass
-            except dns.resolver.NXDOMAIN, e:
+            except dns.resolver.NXDOMAIN as e:
                 logger.critical("NXDOMAIN on %s" % m['fqdn'])
                 raise e
             rtxt = None
@@ -497,7 +501,7 @@ def parse_address_list(a):
                         a6.extend(txt_a6)
                 except dns.resolver.NoAnswer:
                     pass
-                except dns.resolver.NXDOMAIN, e:
+                except dns.resolver.NXDOMAIN as e:
                     logger.critical("NXDOMAIN on %s" % m['fqdn'])
                     raise e
 
