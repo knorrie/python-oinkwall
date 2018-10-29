@@ -280,7 +280,7 @@ class IPTablesRuleset:
                 logger.debug('Ignoring IPv6 interface: i4=%s, o4=%s, i6=%s, o6=%s' %
                              (i4, o4, i6, o6))
         else:
-            do_io_4, do_io_6 = (True, True)
+            do_io_4, do_io_6 = True, True
 
         s = flatten(s)
         s4, s6 = parse_address_list(s)
@@ -356,9 +356,9 @@ class IPTablesRuleset:
 
         todo = {}
         if do_io_4 and do_iosd_4 and do_sd_4:
-            todo[4] = (i4, o4, s4, d4)
+            todo[4] = i4, o4, s4, d4
         if do_io_6 and do_iosd_6 and do_sd_6:
-            todo[6] = (i6, o6, s6, d6)
+            todo[6] = i6, o6, s6, d6
 
         for ipv in todo:
             rules = self.mk_iosd(ipv, command, *todo[ipv])
@@ -461,7 +461,7 @@ def sortablerr(rr):
 
 
 def parse_address_list(a):
-    a4, a6 = ([], [])
+    a4, a6 = [], []
     for addr in a:
         m = sd_regex.match(addr).groupdict()
         if m['ipv4']:
@@ -503,7 +503,7 @@ def parse_address_list(a):
                         txt = rr.to_text()
                         if txt.startswith('"') and txt.endswith('"'):
                             txt = txt[1:-1]
-                        (txt_a4, txt_a6) = parse_address_list([txt])
+                        txt_a4, txt_a6 = parse_address_list([txt])
                         a4.extend(txt_a4)
                         a6.extend(txt_a6)
                 except dns.resolver.NoAnswer:
@@ -517,7 +517,7 @@ def parse_address_list(a):
         else:
             logger.critical('Regular expression for parse_address_list cannot '
                             'deal with %s' % addr)
-    return (a4, a6)
+    return a4, a6
 
 
 class HostsAllow:
