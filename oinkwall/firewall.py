@@ -518,7 +518,6 @@ def parse_address_list(a):
 
 
 class HostsAllow:
-
     def __init__(self):
         # [
         #  {comment: "Blub", daemon: 'sshd', s: ['10.1.0.0/16', 'all']},
@@ -541,7 +540,6 @@ class HostsAllow:
 
 
 class HostsAllowRuleset:
-
     def __init__(self):
         self.rules = []
 
