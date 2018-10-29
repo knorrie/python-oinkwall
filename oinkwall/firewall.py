@@ -25,15 +25,22 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import dns.resolver
-import ipaddr
+import ipaddress
 import logging
 import re
+import sys
 
 logger = logging.getLogger("oinkwall")
 
 
 class OinkwallException(Exception):
     pass
+
+
+def _unicode(sth):
+    if sys.version_info.major < 3 and type(sth) is str:
+        return sth.decode()
+    return sth
 
 
 class IPTables:
@@ -446,7 +453,7 @@ sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:
 
 
 def sortableip(ip):
-    return ipaddr.IPNetwork(ip)
+    return ipaddress.IPNetwork(ip)
 
 
 def sortablerr(rr):
@@ -458,9 +465,9 @@ def parse_address_list(a):
     for addr in a:
         m = sd_regex.match(addr).groupdict()
         if m['ipv4']:
-            a4.append(addr)
+            a4.append(_unicode(addr))
         elif m['ipv6']:
-            a6.append(addr)
+            a6.append(_unicode(addr))
         elif m['fqdn']:
             # throw up badly if domain names cannot be resolved
             # ignoring dns.resolver.NXDOMAIN silently here leads to generated
@@ -471,7 +478,7 @@ def parse_address_list(a):
                 r4 = dns.resolver.query(m['fqdn'], dns.rdatatype.A)
                 addresses = [rr.to_text() for rr in r4.rrset]
                 addresses.sort(key=sortableip)
-                a4.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
+                a4.extend([_unicode('%s%s' % (m['negate'], addr)) for addr in addresses])
             except dns.resolver.NoAnswer:
                 pass
             except dns.resolver.NXDOMAIN as e:
@@ -481,7 +488,7 @@ def parse_address_list(a):
                 r6 = dns.resolver.query(m['fqdn'], dns.rdatatype.AAAA)
                 addresses = [rr.to_text() for rr in r6.rrset]
                 addresses.sort(key=sortableip)
-                a6.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
+                a6.extend([_unicode('%s%s' % (m['negate'], addr)) for addr in addresses])
             except dns.resolver.NoAnswer:
                 pass
             except dns.resolver.NXDOMAIN as e:
