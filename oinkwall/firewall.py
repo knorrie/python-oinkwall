@@ -111,8 +111,7 @@ class IPTables:
                                  (ruleset.chain, ipv, ruleset.table))
                     continue
 
-                self.rules[ipv][ruleset.table][ruleset.chain].extend(
-                    ruleset.rules[ipv])
+                self.rules[ipv][ruleset.table][ruleset.chain].extend(ruleset.rules[ipv])
 
     def add_custom_chain(self, table, chain, ipv=None):
         if ipv is None:
@@ -144,9 +143,7 @@ class IPTables:
             lines.append('*%s' % table)
 
             for chain in self.default_chains[table]:
-                policy = self.override_policy[ipv][table].get(
-                    chain,
-                    self.default_policy[table])
+                policy = self.override_policy[ipv][table].get(chain, self.default_policy[table])
                 lines.append(':%s %s [0:0]' % (chain, policy))
 
             for chain in self.custom_chains[ipv][table]:
@@ -263,8 +260,8 @@ class IPTablesRuleset:
 
         if (('i' in IPTablesRuleset.wannaio[self.chain] and
              'o' in IPTablesRuleset.wannaio[self.chain])):
-            do_io_4, do_io_6, warn_io_4, warn_io_6 = (
-                has4_has6_do46_w46[(has_i4, has_o4, has_i6, has_o6)])
+            do_io_4, do_io_6, warn_io_4, warn_io_6 = \
+                has4_has6_do46_w46[(has_i4, has_o4, has_i6, has_o6)]
 
             if warn_io_4 and warn_io_6:
                 assert do_io_4 is False and do_io_6 is False
@@ -323,8 +320,8 @@ class IPTablesRuleset:
             (True,  True,  True,  True):  (True,  True,  False, False),
         }
 
-        do_iosd_4, do_iosd_6, warn_iosd_4, warn_iosd_6 = (
-            io46_sd46_do46_w46[(has_io4, has_io6, has_sd4, has_sd6)])
+        do_iosd_4, do_iosd_6, warn_iosd_4, warn_iosd_6 = \
+            io46_sd46_do46_w46[(has_io4, has_io6, has_sd4, has_sd6)]
 
         if warn_iosd_4:
             assert do_iosd_4 is False
@@ -337,8 +334,8 @@ class IPTablesRuleset:
 
         # now, look again at the source/destination combination, to filter
         # combinations that would lead to wrong permissive rules
-        do_sd_4, do_sd_6, warn_sd_4, warn_sd_6 = (
-            has4_has6_do46_w46[(has_s4, has_d4, has_s6, has_d6)])
+        do_sd_4, do_sd_6, warn_sd_4, warn_sd_6 = \
+            has4_has6_do46_w46[(has_s4, has_d4, has_s6, has_d6)]
 
         if warn_sd_4 and warn_sd_6:
             assert do_sd_4 is False and do_sd_6 is False
