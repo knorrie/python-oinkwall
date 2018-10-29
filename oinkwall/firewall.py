@@ -543,6 +543,14 @@ class HostsAllowRuleset:
     def __init__(self):
         self.rules = []
 
+    def _brackify_ipv6(self, addresses):
+        """
+        add square brackets to IPv6 addresses
+        e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48
+        """
+        return [re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$', r'[\1]\2', address)
+                for address in addresses]
+
     def add(self, daemon=None, s=None, comment=None):
         rule = {}
         if daemon is not None:
@@ -555,9 +563,7 @@ class HostsAllowRuleset:
                     parsed_s.append('all')
                 else:
                     s4, s6 = parse_address_list(s)
-                    # add square brackets to IPv6 addresses
-                    # (e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48)
-                    s6 = map(lambda x: re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$', r'[\1]\2', x), s6)
+                    s6 = self._brackify_ipv6(s6)
                     parsed_s.extend(s4)
                     parsed_s.extend(s6)
                 rule.update({'daemon': daemon, 's': parsed_s})
