@@ -445,7 +445,7 @@ class Interface(object):
 # Simple regex to distuingish between ipv4, ipv6 addresses and hostnames we
 # need to resolve ourselves. This supports IPv6 addresses with optional extra
 # brackets (like [::1]/128) which are also used for for hosts.allow
-sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'  # noqa: W605
+sd_regex = re.compile(r'(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'  # noqa: W605
                       '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$')
 
 
@@ -473,9 +473,9 @@ def parse_address_list(a):
             r6 = None
             try:
                 r4 = dns.resolver.query(m['fqdn'], dns.rdatatype.A)
-                addresses = [rr.to_text() for rr in r4.rrset]
+                addresses = [_unicode(rr.to_text()) for rr in r4.rrset]
                 addresses.sort(key=sortableip)
-                a4.extend([_unicode('%s%s' % (m['negate'], addr)) for addr in addresses])
+                a4.extend(addresses)
             except dns.resolver.NoAnswer:
                 pass
             except dns.resolver.NXDOMAIN as e:
@@ -483,9 +483,9 @@ def parse_address_list(a):
                 raise e
             try:
                 r6 = dns.resolver.query(m['fqdn'], dns.rdatatype.AAAA)
-                addresses = [rr.to_text() for rr in r6.rrset]
+                addresses = [_unicode(rr.to_text()) for rr in r6.rrset]
                 addresses.sort(key=sortableip)
-                a6.extend([_unicode('%s%s' % (m['negate'], addr)) for addr in addresses])
+                a6.extend(addresses)
             except dns.resolver.NoAnswer:
                 pass
             except dns.resolver.NXDOMAIN as e:
