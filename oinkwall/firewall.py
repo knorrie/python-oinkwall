@@ -449,22 +449,14 @@ sd_regex = re.compile(r'(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'  # noqa: W605
                       '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$')
 
 
-def sortableip(ip):
-    return ipaddress.IPNetwork(ip)
-
-
-def sortablerr(rr):
-    return rr.to_text()
-
-
-def parse_address_list(a):
-    a4, a6 = [], []
+def _parse_address_list(a):
+    net4, net6 = [], []
     for addr in a:
         m = sd_regex.match(addr).groupdict()
         if m['ipv4']:
-            a4.append(_unicode(addr))
+            net4.append(ipaddress.IPv4Network(_unicode(m['ipv4'])))
         elif m['ipv6']:
-            a6.append(_unicode(addr))
+            net6.append(ipaddress.IPv6Network(_unicode(m['ipv6'])))
         elif m['fqdn']:
             # throw up badly if domain names cannot be resolved
             # ignoring dns.resolver.NXDOMAIN silently here leads to generated
@@ -473,9 +465,8 @@ def parse_address_list(a):
             r6 = None
             try:
                 r4 = dns.resolver.query(m['fqdn'], dns.rdatatype.A)
-                addresses = [_unicode(rr.to_text()) for rr in r4.rrset]
-                addresses.sort(key=sortableip)
-                a4.extend(addresses)
+                net4.extend(sorted([ipaddress.IPv4Network(_unicode(rr.to_text()))
+                                    for rr in r4.rrset]))
             except dns.resolver.NoAnswer:
                 pass
             except dns.resolver.NXDOMAIN as e:
@@ -483,9 +474,8 @@ def parse_address_list(a):
                 raise e
             try:
                 r6 = dns.resolver.query(m['fqdn'], dns.rdatatype.AAAA)
-                addresses = [_unicode(rr.to_text()) for rr in r6.rrset]
-                addresses.sort(key=sortableip)
-                a6.extend(addresses)
+                net6.extend(sorted([ipaddress.IPv6Network(_unicode(rr.to_text()))
+                                    for rr in r6.rrset]))
             except dns.resolver.NoAnswer:
                 pass
             except dns.resolver.NXDOMAIN as e:
@@ -495,14 +485,15 @@ def parse_address_list(a):
             if r4 is None and r6 is None:
                 try:
                     rtxt = dns.resolver.query(m['fqdn'], dns.rdatatype.TXT)
-                    rrset = sorted(rtxt.rrset, key=sortablerr)
-                    for rr in rrset:
+                    for rr in rtxt.rrset:
                         txt = rr.to_text()
                         if txt.startswith('"') and txt.endswith('"'):
                             txt = txt[1:-1]
-                        txt_a4, txt_a6 = parse_address_list([txt])
-                        a4.extend(txt_a4)
-                        a6.extend(txt_a6)
+                        txt_net4, txt_net6 = _parse_address_list([txt])
+                        net4.extend(txt_net4)
+                        net4 = sorted(ipaddress.collapse_addresses(net4))
+                        net6.extend(txt_net6)
+                        net6 = sorted(ipaddress.collapse_addresses(net6))
                 except dns.resolver.NoAnswer:
                     pass
                 except dns.resolver.NXDOMAIN as e:
@@ -514,7 +505,19 @@ def parse_address_list(a):
         else:
             logger.critical('Regular expression for parse_address_list cannot '
                             'deal with %s' % addr)
-    return a4, a6
+
+    return net4, net6
+
+
+def str_net_or_host(net):
+    if net.prefixlen == net.max_prefixlen:
+        return str(net.network_address)
+    return str(net)
+
+
+def parse_address_list(a):
+    net4, net6 = _parse_address_list(a)
+    return [str_net_or_host(net) for net in net4], [str_net_or_host(net) for net in net6]
 
 
 class HostsAllow:
