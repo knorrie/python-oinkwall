@@ -441,7 +441,7 @@ class Interface(object):
 # Simple regex to distuingish between ipv4, ipv6 addresses and hostnames we
 # need to resolve ourselves. This supports IPv6 addresses with optional extra
 # brackets (like [::1]/128) which are also used for for hosts.allow
-sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'
+sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'  # noqa: W605
                       '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$')
 
 
