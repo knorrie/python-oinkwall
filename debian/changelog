@@ -1,3 +1,9 @@
+oinkwall (0.5-1~mx9u1) stretch; urgency=medium
+
+  * Rebuild for Stretch
+
+ -- Hans van Kranenburg <hans@knorrie.org>  Sat, 15 Dec 2018 20:08:03 +0100
+
 oinkwall (0.5-1) unstable; urgency=medium
 
   * New release, v0.5. See CHANGES.
