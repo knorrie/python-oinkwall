@@ -1,39 +1,41 @@
+# Copyright (c) 2008 Hans van Kranenburg <hans@knorrie.org>
 #
-# Copyright (c) 2008-2015 Hans van Kranenburg <hans.van.kranenburg@mendix.com>
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-# .
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * Neither the name of Mendix nor the
-#       names of its contributors may be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-# .
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL MENDIX BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import dns.resolver
-import ipaddr
+import ipaddress
 import logging
 import re
+import sys
 
 logger = logging.getLogger("oinkwall")
 
 
 class OinkwallException(Exception):
     pass
+
+
+def _unicode(sth):
+    if sys.version_info.major < 3 and type(sth) is str:
+        return sth.decode()
+    return sth
 
 
 class IPTables:
@@ -104,8 +106,7 @@ class IPTables:
                                  (ruleset.chain, ipv, ruleset.table))
                     continue
 
-                self.rules[ipv][ruleset.table][ruleset.chain].extend(
-                    ruleset.rules[ipv])
+                self.rules[ipv][ruleset.table][ruleset.chain].extend(ruleset.rules[ipv])
 
     def add_custom_chain(self, table, chain, ipv=None):
         if ipv is None:
@@ -137,9 +138,7 @@ class IPTables:
             lines.append('*%s' % table)
 
             for chain in self.default_chains[table]:
-                policy = self.override_policy[ipv][table].get(
-                    chain,
-                    self.default_policy[table])
+                policy = self.override_policy[ipv][table].get(chain, self.default_policy[table])
                 lines.append(':%s %s [0:0]' % (chain, policy))
 
             for chain in self.custom_chains[ipv][table]:
@@ -256,8 +255,8 @@ class IPTablesRuleset:
 
         if (('i' in IPTablesRuleset.wannaio[self.chain] and
              'o' in IPTablesRuleset.wannaio[self.chain])):
-            do_io_4, do_io_6, warn_io_4, warn_io_6 = (
-                has4_has6_do46_w46[(has_i4, has_o4, has_i6, has_o6)])
+            do_io_4, do_io_6, warn_io_4, warn_io_6 = \
+                has4_has6_do46_w46[(has_i4, has_o4, has_i6, has_o6)]
 
             if warn_io_4 and warn_io_6:
                 assert do_io_4 is False and do_io_6 is False
@@ -273,7 +272,7 @@ class IPTablesRuleset:
                 logger.debug('Ignoring IPv6 interface: i4=%s, o4=%s, i6=%s, o6=%s' %
                              (i4, o4, i6, o6))
         else:
-            do_io_4, do_io_6 = (True, True)
+            do_io_4, do_io_6 = True, True
 
         s = flatten(s)
         s4, s6 = parse_address_list(s)
@@ -316,8 +315,8 @@ class IPTablesRuleset:
             (True,  True,  True,  True):  (True,  True,  False, False),
         }
 
-        do_iosd_4, do_iosd_6, warn_iosd_4, warn_iosd_6 = (
-            io46_sd46_do46_w46[(has_io4, has_io6, has_sd4, has_sd6)])
+        do_iosd_4, do_iosd_6, warn_iosd_4, warn_iosd_6 = \
+            io46_sd46_do46_w46[(has_io4, has_io6, has_sd4, has_sd6)]
 
         if warn_iosd_4:
             assert do_iosd_4 is False
@@ -330,8 +329,8 @@ class IPTablesRuleset:
 
         # now, look again at the source/destination combination, to filter
         # combinations that would lead to wrong permissive rules
-        do_sd_4, do_sd_6, warn_sd_4, warn_sd_6 = (
-            has4_has6_do46_w46[(has_s4, has_d4, has_s6, has_d6)])
+        do_sd_4, do_sd_6, warn_sd_4, warn_sd_6 = \
+            has4_has6_do46_w46[(has_s4, has_d4, has_s6, has_d6)]
 
         if warn_sd_4 and warn_sd_6:
             assert do_sd_4 is False and do_sd_6 is False
@@ -349,9 +348,9 @@ class IPTablesRuleset:
 
         todo = {}
         if do_io_4 and do_iosd_4 and do_sd_4:
-            todo[4] = (i4, o4, s4, d4)
+            todo[4] = i4, o4, s4, d4
         if do_io_6 and do_iosd_6 and do_sd_6:
-            todo[6] = (i6, o6, s6, d6)
+            todo[6] = i6, o6, s6, d6
 
         for ipv in todo:
             rules = self.mk_iosd(ipv, command, *todo[ipv])
@@ -441,22 +440,18 @@ class Interface(object):
 # Simple regex to distuingish between ipv4, ipv6 addresses and hostnames we
 # need to resolve ourselves. This supports IPv6 addresses with optional extra
 # brackets (like [::1]/128) which are also used for for hosts.allow
-sd_regex = re.compile(r'(?P<negate>(!\s+|))?(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'
+sd_regex = re.compile(r'(?:(?P<ipv4>[\d./]+)|(?P<ipv6>(?=.*:)'  # noqa: W605
                       '\[?[\d:a-fA-F]+\]?(/\d+)?)|(?P<fqdn>.*))$')
 
 
-sortableip = lambda ip: ipaddr.IPNetwork(ip)
-sortablerr = lambda rr: rr.to_text()
-
-
-def parse_address_list(a):
-    a4, a6 = ([], [])
+def _parse_address_list(a):
+    net4, net6 = [], []
     for addr in a:
         m = sd_regex.match(addr).groupdict()
         if m['ipv4']:
-            a4.append(addr)
+            net4.append(ipaddress.IPv4Network(_unicode(m['ipv4'])))
         elif m['ipv6']:
-            a6.append(addr)
+            net6.append(ipaddress.IPv6Network(_unicode(m['ipv6'])))
         elif m['fqdn']:
             # throw up badly if domain names cannot be resolved
             # ignoring dns.resolver.NXDOMAIN silently here leads to generated
@@ -465,39 +460,38 @@ def parse_address_list(a):
             r6 = None
             try:
                 r4 = dns.resolver.query(m['fqdn'], dns.rdatatype.A)
-                addresses = [rr.to_text() for rr in r4.rrset]
-                addresses.sort(key=sortableip)
-                a4.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
+                net4.extend(sorted([ipaddress.IPv4Network(_unicode(rr.to_text()))
+                                    for rr in r4.rrset]))
             except dns.resolver.NoAnswer:
                 pass
-            except dns.resolver.NXDOMAIN, e:
+            except dns.resolver.NXDOMAIN as e:
                 logger.critical("NXDOMAIN on %s" % m['fqdn'])
                 raise e
             try:
                 r6 = dns.resolver.query(m['fqdn'], dns.rdatatype.AAAA)
-                addresses = [rr.to_text() for rr in r6.rrset]
-                addresses.sort(key=sortableip)
-                a6.extend(['%s%s' % (m['negate'], addr) for addr in addresses])
+                net6.extend(sorted([ipaddress.IPv6Network(_unicode(rr.to_text()))
+                                    for rr in r6.rrset]))
             except dns.resolver.NoAnswer:
                 pass
-            except dns.resolver.NXDOMAIN, e:
+            except dns.resolver.NXDOMAIN as e:
                 logger.critical("NXDOMAIN on %s" % m['fqdn'])
                 raise e
             rtxt = None
             if r4 is None and r6 is None:
                 try:
                     rtxt = dns.resolver.query(m['fqdn'], dns.rdatatype.TXT)
-                    rrset = sorted(rtxt.rrset, key=sortablerr)
-                    for rr in rrset:
+                    for rr in rtxt.rrset:
                         txt = rr.to_text()
                         if txt.startswith('"') and txt.endswith('"'):
                             txt = txt[1:-1]
-                        (txt_a4, txt_a6) = parse_address_list([txt])
-                        a4.extend(txt_a4)
-                        a6.extend(txt_a6)
+                        txt_net4, txt_net6 = _parse_address_list([txt])
+                        net4.extend(txt_net4)
+                        net4 = sorted(ipaddress.collapse_addresses(net4))
+                        net6.extend(txt_net6)
+                        net6 = sorted(ipaddress.collapse_addresses(net6))
                 except dns.resolver.NoAnswer:
                     pass
-                except dns.resolver.NXDOMAIN, e:
+                except dns.resolver.NXDOMAIN as e:
                     logger.critical("NXDOMAIN on %s" % m['fqdn'])
                     raise e
 
@@ -506,11 +500,22 @@ def parse_address_list(a):
         else:
             logger.critical('Regular expression for parse_address_list cannot '
                             'deal with %s' % addr)
-    return (a4, a6)
+
+    return net4, net6
+
+
+def str_net_or_host(net):
+    if net.prefixlen == net.max_prefixlen:
+        return str(net.network_address)
+    return str(net)
+
+
+def parse_address_list(a):
+    net4, net6 = _parse_address_list(a)
+    return [str_net_or_host(net) for net in net4], [str_net_or_host(net) for net in net6]
 
 
 class HostsAllow:
-
     def __init__(self):
         # [
         #  {comment: "Blub", daemon: 'sshd', s: ['10.1.0.0/16', 'all']},
@@ -533,9 +538,16 @@ class HostsAllow:
 
 
 class HostsAllowRuleset:
-
     def __init__(self):
         self.rules = []
+
+    def _brackify_ipv6(self, addresses):
+        """
+        add square brackets to IPv6 addresses
+        e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48
+        """
+        return [re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$', r'[\1]\2', address)
+                for address in addresses]
 
     def add(self, daemon=None, s=None, comment=None):
         rule = {}
@@ -549,9 +561,7 @@ class HostsAllowRuleset:
                     parsed_s.append('all')
                 else:
                     s4, s6 = parse_address_list(s)
-                    # add square brackets to IPv6 addresses
-                    # (e.g. 2001:db8:1::/48 -> [2001:db8:1::]/48)
-                    s6 = map(lambda x: re.sub(r'(^[\d:a-fA-F]+)([\/\d]*)$', r'[\1]\2', x), s6)
+                    s6 = self._brackify_ipv6(s6)
                     parsed_s.extend(s4)
                     parsed_s.extend(s6)
                 rule.update({'daemon': daemon, 's': parsed_s})

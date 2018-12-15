@@ -1,0 +1,10 @@
+oinkwall v0.5, Dec 15 2018
+  * The code is now also python3 compatible.
+  * The ipaddress library is now used instead of ipaddr. In python3, this is
+    part of the standard library. In python2, there's a separate backport of it
+    available.
+  * Support for 'negation' syntax, e.g. '! 10.0.0.0/8' has been dropped to
+    reduce complexity of the code. It was already obscure and undocumented. If
+    this was used, then please reorder your ruleset a bit.
+  * Address / network result lists in rules are deduplicated, using the
+    collapse_addresses functionality in the ipaddress library.

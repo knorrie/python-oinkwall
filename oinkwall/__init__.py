@@ -1,4 +1,4 @@
-from firewall import IPTables
-from firewall import IPTablesRuleset
-from firewall import HostsAllow
-from firewall import HostsAllowRuleset
+from oinkwall.firewall import IPTables  # noqa
+from oinkwall.firewall import IPTablesRuleset  # noqa
+from oinkwall.firewall import HostsAllow  # noqa
+from oinkwall.firewall import HostsAllowRuleset  # noqa
