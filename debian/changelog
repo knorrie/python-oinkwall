@@ -1,3 +1,11 @@
+oinkwall (0.5-1~mx8u1) jessie; urgency=medium
+
+  * Rebuild for Jessie
+  * debian/gbp.conf: adjust for jessie
+  * d/control: yolo try lowering dh dep to 9
+
+ -- Hans van Kranenburg <hans@knorrie.org>  Thu, 26 Sep 2019 13:44:48 +0200
+
 oinkwall (0.5-1) unstable; urgency=medium
 
   * New release, v0.5. See CHANGES.
