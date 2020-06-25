@@ -203,6 +203,12 @@ the TXT records and resolve it to `192.0.2.0/24`, `2001:db8:1998::/120` and
 `2001:db8:42:99::/64` for you. The IPv4 range will end up in the IPv4 firewall,
 and the IPv6 ranges will end up in the IPv6 firewall.
 
+To test this behaviour, we can use the `parse_address_list` function:
+
+    >>> import oinkwall
+    >>> oinkwall.firewall.parse_address_list(['_net.example.knorrie.org'])
+    (['192.0.2.0/24'], ['2001:db8:42:99::/64', '2001:db8:1998::/120'])
+
 ## F.A.Q.
 
 Q: Can I use IPv6 NAT?  
