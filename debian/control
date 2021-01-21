@@ -2,20 +2,8 @@ Source: oinkwall
 Section: net
 Priority: optional
 Maintainer: Hans van Kranenburg <hans@knorrie.org>
-Build-Depends: debhelper (>= 11~), dh-python, python-all, python-setuptools,
- python3-all, python3-setuptools
+Build-Depends: debhelper (>= 11~), dh-python, python3-all, python3-setuptools
 Standards-Version: 4.2.1.5
-
-Package: python-oinkwall
-Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-dnspython, python-ipaddress
-Description: Python iptables ruleset library
- Python module for programmatically creating low level iptables rule sets.
- Oinkwall aims at reducing friction of handling IPv4 and IPv6 rule sets in
- parallel and handling the resolving of IP addresses via DNS, including network
- subnet definitions, while not restricting the freedom of the user.
- .
- This package installs the library for Python 2.
 
 Package: python3-oinkwall
 Architecture: all
