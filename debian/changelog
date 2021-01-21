@@ -1,3 +1,9 @@
+oinkwall (0.5-2~mx10u1) buster; urgency=medium
+
+  * Rebuild for Buster
+
+ -- Hans van Kranenburg <hans@knorrie.org>  Thu, 21 Jan 2021 12:52:56 +0100
+
 oinkwall (0.5-2) unstable; urgency=medium
 
   * Drop support for Python 2
