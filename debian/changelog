@@ -1,3 +1,9 @@
+oinkwall (0.5-2) unstable; urgency=medium
+
+  * Drop support for Python 2
+
+ -- Hans van Kranenburg <hans@knorrie.org>  Thu, 21 Jan 2021 11:22:42 +0100
+
 oinkwall (0.5-1) unstable; urgency=medium
 
   * New release, v0.5. See CHANGES.
